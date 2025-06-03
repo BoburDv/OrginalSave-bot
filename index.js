@@ -1,7 +1,6 @@
 require("dotenv").config();
 const fs = require("fs");
 const TelegramBot = require("node-telegram-bot-api");
-const { getMedia } = require("insta-fetcher");
 const { instagramGetUrl } = require("instagram-url-direct");
 const crypto = require("crypto");
 
@@ -36,7 +35,7 @@ bot.onText(/\/start/, (msg) => {
 
   bot.sendMessage(
     msg.chat.id,
-    "🔥 𝗔𝘀𝘀𝗮𝗹𝗼𝗺𝘂 𝗮𝗹𝗮𝘆𝗸𝘂𝗺. @OrginalSave_bot 𝗴𝗮 𝗫𝘂𝘀𝗵 𝗸𝗲𝗹𝗶𝗯𝘀𝗶𝘇!\n\n😎 Menga Instagram video havolasini yuboring.",
+    "🔥 Assalomu alaykum. @OrginalSave_bot ga Xush kelibsiz!\n\n😎 Menga Instagram video havolasini yuboring.",
     {
       reply_markup: {
         keyboard: [[{ text: "📁 Saqlangan videolar" }]],
@@ -84,15 +83,10 @@ bot.on("message", async (msg) => {
   let videoUrl = null;
 
   try {
-    const res = await getMedia(text);
-    if (res.download_link) videoUrl = res.download_link;
-  } catch {}
-
-  if (!videoUrl) {
-    try {
-      const res = await instagramGetUrl(text);
-      videoUrl = res?.url_list?.[0];
-    } catch {}
+    const res = await instagramGetUrl(text);
+    videoUrl = res?.url_list?.[0];
+  } catch (err) {
+    console.error("Instagram URL parsing failed:", err);
   }
 
   if (!videoUrl) {
@@ -124,6 +118,7 @@ bot.on("callback_query", async (query) => {
   const chatId = query.message.chat.id;
   const messageId = query.message.message_id;
   const data = load();
+
   const sendAlert = (msg) =>
     bot.answerCallbackQuery(query.id, { text: msg, show_alert: true });
 
@@ -133,16 +128,19 @@ bot.on("callback_query", async (query) => {
     if (!fileId) return sendAlert("⚠️ URL topilmadi.");
 
     if (!data[userId]) data[userId] = [];
-    if (data[userId].some((v) => v.id === id))
+
+    if (data[userId].some((v) => v.id === id)) {
       return bot.answerCallbackQuery(query.id, {
         text: "Videoni allaqachon saqlagansiz ✅",
       });
+    }
 
-    if (data[userId].length >= 10)
+    if (data[userId].length >= 10) {
       return bot.answerCallbackQuery(query.id, {
         text: "⚠️ Kechirasiz, 10 tadan ortiq video saqlay olmayman:( Videolarni o'chirib qayta urunib ko'ring.",
         show_alert: true,
       });
+    }
 
     data[userId].push({ id, file_id: fileId });
     save(data);
