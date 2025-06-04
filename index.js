@@ -68,7 +68,7 @@ function showSaved(msg) {
         },
       });
     } catch (err) {
-      await bot.sendMessage(chatId, `⚠️ Video #${i + 1} yuklab bo'lmadi?`);
+      await bot.sendMessage(chatId, `⚠️ Video #${i + 1} yuklab bo'lmadi.?`);
     }
   });
 }
